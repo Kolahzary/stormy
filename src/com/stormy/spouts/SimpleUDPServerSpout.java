@@ -48,7 +48,6 @@ public class SimpleUDPServerSpout extends BaseRichSpout {
 		}
 
 		String line = new String(receivePacket.getData());
-		System.out.println("RECEIVED: " + line);
 		this._collector.emit(new Values(line));
 
 	}
