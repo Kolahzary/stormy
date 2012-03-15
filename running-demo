@@ -1,0 +1,8 @@
+run this on lb10:
+tail -f /var/log/haproxy/haproxy.log | nc -u dev3 11223
+
+run this on dev3:
+nc -u -l 11223 > /scratch/brian/the.log
+
+run this your local machine:
+ssh brian@dev.lolapps.com "tail -f /scratch/brian/the.log" | nc -u localhost 9876
