@@ -25,6 +25,9 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
+import com.maxmind.geoip.LookupService;
+import com.maxmind.geoip.Location;
+
 public class Main {
 
 	public static class TestBolt extends BaseRichBolt {
@@ -142,12 +145,46 @@ public class Main {
 			declarer.declare(new Fields("ip"));
 		}
 	}
-
-	public static void main(String[] args) throws Exception {
+	
+	public static class GeoIPBolt extends BaseRichBolt {
+		OutputCollector _collector;
+		LookupService _cl;
+		
+		@Override
+		public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
+			_collector = collector;
+			String dbpath = "GeoIPCity.dat";
+			try {
+				_cl = new LookupService(dbpath, LookupService.GEOIP_STANDARD);
+			} catch (IOException e) {
+				System.out.println("IO Exception while initializing GeoIP database. It should be installed in " + dbpath);
+			}
+		}
+		
+		@Override
+		public void execute(Tuple tuple) {
+			String ip = tuple.getString(0);
+			
+			if (_cl != null) {
+				Location loc;
+				loc = _cl.getLocation(ip);
+				if (loc != null) {
+					_collector.emit(new Values(loc.longitude, loc.latitude));
+				}
+			}
+		}
+		
+		@Override
+		public void declareOutputFields(OutputFieldsDeclarer declarer) {
+			declarer.declare(new Fields("long", "lat"));
+		}
+	}
+	
+    public static void main(String[] args) throws Exception {
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("line", new SimpleUDPServerSpout(), 1);
-		builder.setBolt("exclaim1", new IPParserBolt(), 3).shuffleGrouping(
-				"line");
+		builder.setBolt("ip", new IPParserBolt(), 3).shuffleGrouping("line");
+		builder.setBolt("geo", new GeoIPBolt(), 3).shuffleGrouping("ip");
 
 		Config conf = new Config();
 		conf.setDebug(true);
