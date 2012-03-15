@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.HashMap;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
-import backtype.storm.testing.TestWordSpout;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.topology.base.BaseRichBolt;
@@ -93,6 +93,18 @@ public class Main {
 			Map<String, Object> ret = new HashMap<String, Object>();
 			ret.put(Config.TOPOLOGY_MAX_TASK_PARALLELISM, 1);
 			return ret;
+		}
+
+	}
+	
+	private static void setLatLon(String url, float lat, float lon) {
+		try {
+		    URL myURL = new URL(url + "?lat=" + lat + "&long=" + lon);
+		    URLConnection myURLConnection = myURL.openConnection();
+		    myURLConnection.connect();
+		} 
+		catch (Exception e) { 
+		    System.err.println("Error: " + e);
 		}
 
 	}
