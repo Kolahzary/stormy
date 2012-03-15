@@ -15,6 +15,7 @@
         socket.on('coordinate', function (data) {
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat, data.lon),
+              animation: google.maps.Animation.DROP,
               map: map
           });
         });
