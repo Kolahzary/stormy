@@ -131,7 +131,7 @@ public class Main {
 		@Override
 		public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
 			_collector = collector;
-			String dbpath = "/usr/local/share/GeoIP/GeoIPCity.dat";
+			String dbpath = "GeoIPCity.dat";
 			try {
 				_cl = new LookupService(dbpath, LookupService.GEOIP_STANDARD);
 			} catch (IOException e) {
