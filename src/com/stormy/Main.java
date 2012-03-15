@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -35,7 +36,7 @@ public class Main {
 
 		@Override
 		public void execute(Tuple tuple) {
-			_collector.emit(tuple, new Values(tuple.getString(0) + "!!!"));
+			_collector.emit(tuple, new Values(tuple.getString(0) + "???"));
 		}
 
 		@Override
@@ -95,11 +96,35 @@ public class Main {
 		}
 
 	}
-
-	public static void main(String[] args) throws Exception {
+	
+	public static class IPParserBolt extends BaseRichBolt {
+		OutputCollector _collector;
+		
+		@Override
+		public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
+			_collector = collector;
+		}
+		
+		@Override
+		public void execute(Tuple tuple) {
+			String[] data = tuple.getString(0).split(" ");
+			for (int i = 0; i < data.length; i++) {
+				if (data[i].matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")) {
+					_collector.emit(tuple, new Values(data[i]));
+				}
+			}
+		}
+		
+		@Override
+		public void declareOutputFields(OutputFieldsDeclarer declarer) {
+			declarer.declare(new Fields("ip"));
+		}
+	}
+	
+    public static void main(String[] args) throws Exception {
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("line", new SimpleUDPServerSpout(), 1);
-		builder.setBolt("exclaim1", new TestBolt(), 3).shuffleGrouping("line");
+		builder.setBolt("exclaim1", new IPParserBolt(), 3).shuffleGrouping("line");
 
 		Config conf = new Config();
 		conf.setDebug(true);
