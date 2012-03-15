@@ -19,7 +19,7 @@ public class Main {
 	private static void setLatLon(String url, float lat, float lon) {
 		URLConnection myURLConnection;
 		try {
-			URL myURL = new URL(url + "?lat=" + lat + "&long=" + lon);
+			URL myURL = new URL(url + "?lat=" + lat + "&lon=" + lon);
 			myURLConnection = myURL.openConnection();
 			myURLConnection.connect();
 
