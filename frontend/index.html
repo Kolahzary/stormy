@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <script src="http://127.0.0.1:8080/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script>
+      function initialize() {
+        var options = {
+          zoom: 4,
+          center: new google.maps.LatLng(37.0625, -95.677068),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map"), options);
+
+        var socket = io.connect('http://127.0.0.1:8080');
+        socket.on('coordinate', function (data) {
+          var marker = new google.maps.Marker({
+              position: new google.maps.LatLng(data.lat, data.lon),
+              map: map
+          });
+        });
+      }
+    </script>
+    <style type="text/css">
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body onLoad="initialize();">
+    <div id="map"></div>
+  </body>
+</html>
