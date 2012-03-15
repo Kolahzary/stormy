@@ -102,24 +102,6 @@ public class Main {
 
 	}
 
-	private static void setLatLon(String url, float lat, float lon) {
-		URLConnection myURLConnection;
-		try {
-			URL myURL = new URL(url + "?lat=" + lat + "&long=" + lon);
-			myURLConnection = myURL.openConnection();
-			myURLConnection.connect();
-			
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					myURLConnection.getInputStream()));
-			String inputLine;
-			while ((inputLine = in.readLine()) != null)
-				System.out.println(inputLine);
-			in.close();
-		} catch (Exception e) {
-			System.err.println("Error: " + e);
-		}
-	}
-
 	public static class IPParserBolt extends BaseRichBolt {
 		OutputCollector _collector;
 
@@ -131,7 +113,7 @@ public class Main {
 
 		@Override
 		public void execute(Tuple tuple) {
-			String[] data = tuple.getString(0).split(" ");
+			String[] data = tuple.getString(0).split("[ :]");
 			for (int i = 0; i < data.length; i++) {
 				if (data[i]
 						.matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")) {
@@ -180,11 +162,51 @@ public class Main {
 		}
 	}
 	
+	public static class LongLatPusherBolt extends BaseRichBolt {
+		OutputCollector _collector;
+		
+		@Override
+		public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
+			_collector = collector;
+		}
+		
+		@Override
+		public void execute(Tuple tuple) {
+			float lon = tuple.getFloat(0);
+			float lat = tuple.getFloat(1);
+			setLatLon("http://10.0.5.94:8080/", lat, lon);
+		}
+		
+		@Override
+		public void declareOutputFields(OutputFieldsDeclarer declarer) {
+			declarer.declare(new Fields());
+		}
+		
+		private static void setLatLon(String url, float lat, float lon) {
+			URLConnection myURLConnection;
+			try {
+				URL myURL = new URL(url + "?lat=" + lat + "&lon=" + lon);
+				myURLConnection = myURL.openConnection();
+				myURLConnection.connect();
+				
+				BufferedReader in = new BufferedReader(new InputStreamReader(
+						myURLConnection.getInputStream()));
+				String inputLine;
+				while ((inputLine = in.readLine()) != null)
+					System.out.println(inputLine);
+				in.close();
+			} catch (Exception e) {
+				System.err.println("Error: " + e);
+			}
+		}
+	}
+	
     public static void main(String[] args) throws Exception {
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("line", new SimpleUDPServerSpout(), 1);
 		builder.setBolt("ip", new IPParserBolt(), 3).shuffleGrouping("line");
 		builder.setBolt("geo", new GeoIPBolt(), 3).shuffleGrouping("ip");
+		builder.setBolt("pusher", new LongLatPusherBolt(), 1).shuffleGrouping("geo");
 
 		Config conf = new Config();
 		conf.setDebug(true);
