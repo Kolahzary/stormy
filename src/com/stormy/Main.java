@@ -1,10 +1,5 @@
 package com.stormy;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
@@ -12,8 +7,8 @@ import backtype.storm.utils.Utils;
 
 import com.stormy.bolts.GeoIPBolt;
 import com.stormy.bolts.IPParserBolt;
-import com.stormy.spouts.SimpleUDPServerSpout;
 import com.stormy.bolts.LongLatPusherBolt;
+import com.stormy.spouts.SimpleUDPServerSpout;
 
 public class Main {
 

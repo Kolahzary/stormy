@@ -25,7 +25,7 @@ public class LongLatPusherBolt extends BaseRichBolt {
 	public void execute(Tuple tuple) {
 		float lon = tuple.getFloat(0);
 		float lat = tuple.getFloat(1);
-		setLatLon("http://10.0.5.94:8080/", lat, lon);
+		setLatLon("http://localhost:8080/", lat, lon);
 	}
 	
 	@Override
