@@ -18,7 +18,7 @@
 		<link>
 			<name>jvm</name>
 			<type>2</type>
-			<location>/Users/coryvirok/Development/storm/src/jvm</location>
+			<location>src/jvm</location>
 		</link>
 	</linkedResources>
 </projectDescription>
