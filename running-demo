@@ -1,8 +1,8 @@
-run this on lb10:
-tail -f /var/log/haproxy/haproxy.log | nc -u dev3 11223
+run this on some host:
+tail -f /var/log/haproxy/haproxy.log | nc -u HOST 11223
 
-run this on dev3:
-nc -u -l 11223 > /scratch/brian/the.log
+run this on HOST:
+nc -u -l 11223 > /tmp/the.log
 
 run this your local machine:
-ssh brian@dev.lolapps.com "tail -f /scratch/brian/the.log" | nc -u localhost 9876
+ssh USERNAME@HOST "tail -f /tmp/the.log" | nc -u localhost 9876
